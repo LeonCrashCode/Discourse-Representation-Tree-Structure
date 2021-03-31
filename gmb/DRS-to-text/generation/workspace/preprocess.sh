@@ -1,6 +1,5 @@
 mkdir data-bin
 echo "please check if the implementation is in the correct directory"
-echo ${LIBRARY_PATH}
 onmt_preprocess \
         --train_src data/trn.src \
         --train_tgt data/trn.tgt \

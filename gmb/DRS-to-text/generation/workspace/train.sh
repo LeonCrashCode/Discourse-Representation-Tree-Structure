@@ -1,5 +1,5 @@
 echo "please check if the implementation is in the correct directory"
-mkdir models_2
+mkdir models
 onmt_train \
         --src_word_vec_size 300 \
         --tgt_word_vec_size 300 \
@@ -20,7 +20,7 @@ onmt_train \
         --generator_function softmax \
         --apex_opt_level O1 \
         --data data-bin/basic \
-        --save_model models_2/basic \
+        --save_model models/basic \
         --save_checkpoint_steps 1000 \
         --gpu_ranks 0 \
         --world_size 1 \
