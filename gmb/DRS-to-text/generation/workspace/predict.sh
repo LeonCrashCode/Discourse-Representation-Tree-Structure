@@ -1,7 +1,6 @@
 echo "please check if the implementation is in the correct directory"
 
-
-nohup srun --gres gpu:1 --mem 20G -p M_AND_I_GPU onmt_translate \
+onmt_translate \
         --model ${1} \
         --beam_size ${5} \
         --max_length 400 \
