@@ -4,7 +4,7 @@
 python == 2.7
 editdistance >= 0.3.1
 ```
-The original dataset Parallel Meaning Bank (PMB) can be downloaded in [here](https://pmb.let.rug.nl/data.php). Unzip the `pmb-x.x.x.zip` and move the `pmb-x.x.x/data` to the current directory `pmb/data`.
+The original dataset Parallel Meaning Bank (PMB) can be downloaded in [here](https://pmb.let.rug.nl/data.php). Unzip the `pmb-2.2.0.zip` and move the `pmb-2.2.0/data` to the current directory `pmb/data`.
 
 Prepare for English (en)
 ```
@@ -43,4 +43,4 @@ python2 create.py [de|it|nl]_tst_file > [de|it|nl].tst.json
 python2 create.py [de|it|nl]_dev_file > [de|it|nl].dev.json
 ```
 
-Or you can directly download the processed `json` files [2.2.0](https://drive.google.com/drive/folders/1sDCs8f-bZUf1SvDIllzxZoMikpxtwH6c?usp=sharing) or [3.0.0]()
+Or you can directly download the processed `json` files [2.2.0](https://drive.google.com/drive/folders/1sDCs8f-bZUf1SvDIllzxZoMikpxtwH6c?usp=sharing)
