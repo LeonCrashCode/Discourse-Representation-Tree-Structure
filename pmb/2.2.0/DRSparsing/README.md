@@ -9,106 +9,116 @@ torchtext == 0.4.0
 ```
 ## Data prepare
 
-Go to the preprocess directory to prepare the data for DRS-to-text generation. 
-
+Go to the preprocess directory to prepare the data for DRS parsing, and construct director for each language.
 ```
 cd preprocess
-
-ln -s ../../trn.json
-ln -s ../../dev.json
-ln -s ../../tst.json
-
-python3 oracle.py trn.json > trn_oracle.json
-python3 oracle.py dev.json > dev_oracle.json
-python3 oracle.py tst.json > tst_oracle.json
-
-python3 create_graph_bi.py trn_oracle.json > trn.graph_bi
-python3 create_graph_bi.py dev_oracle.json > dev.graph_bi
-python3 create_graph_bi.py tst_oracle.json > tst.graph_bi
-
-python3 create_vocab.py trn.graph
-```
-The vocabulary file `trn.vocab` is automatically generated.
-
-## Condition ordering
-
-```
-cd ordering
-cd workspace
-
-ln -s ../../preprocess/trn.graph_bi trn.graph
-ln -s ../../preprocess/dev.graph_bi dev.graph
-ln -s ../../preprocess/tst.graph_bi tst.graph
-
-ln -s ../../preprocess/trn.vocab
+mkdir en de it nl
 ```
 
-### Train
+Build data for English (en)
+```
+cd en
+ln -s ../oracle.py
+ln -s ../util.py
+ln -s ../../../en.[bronze|silver|gold|dev|tst].json
+python2 oracle.py en.[bronze|silver|gold|dev|tst].json > en.[bronze|silver|gold|dev|tst].oracle.json
 
-```
-mkdir models
-bash train.sh
-```
-The `checkpoints` are saved in the `models/` directory. The model can be downloaded [here](https://drive.google.com/file/d/1wE7Ul-br5isw26ycXHLuXPLnxdCXho7f/view?usp=sharing)
-
-### Predict
-
-```
-bash predict.sh [model_path] dev.graph dev.order_bi
-bash predict.sh [model_path] tst.graph tst.order_bi
-```
-Given the `tst.graph`, the trained model predict the orders of conditions `tst.order_bi`.
-
-```
-ln -s ../../../tst.json
-ln -s ../../preprocess/oracle_reorder.py
-
-python3 oracle_reorder.py dev.json dev.order_bi > dev_oracle_reorder_bi.json
-python3 oracle_reorder.py tst.json tst.order_bi > tst_oracle_reorder_bi.json
-```
-
-## Generation
-
-Generation codes are modified based on the [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py), ad you have to install the local onmt
-
-```
-cd generation
-cd onmt
-pip install .
-```
-
-Prepare the data for onmt for ideal world generation
-```
-cd generation/workspace/data
-```
-```
-ln -s ../../../preprocess/trn.oracle.json trn
-ln -s ../../../preprocess/dev.oracle.json dev
-ln -s ../../../preprocess/tst.oracle.json tst
-```
-or real world generation
-```
-ln -s ../../../preprocess/trn.oracle.json trn
-ln -s ../../../ordering/workspace/dev_oracle_reorder_bi.json dev
-ln -s ../../../ordering/workspace/tst_oracle_reorder_bi.json tst
-```
-```
-python3 getsrc.py [trn|dev|tst] > [trn|dev|tst].src
-python3 gettgt.py [trn|dev|tst] > [trn|dev|tst].tgt
-python3 gettree.py [trn|dev|tst] > [trn|dev|tst].tree
-
+ln -s ../getsrc.py
+ln -s ../gettgt.py
+python2 getsrc.py en.[bronze|silver|gold|dev|tst].oracle.json > en.[bronze|silver|gold|dev|tst].src
+python2 gettgt.py en.[bronze|silver|gold|dev|tst].oracle.json > en.[bronze|silver|gold|dev|tst].tgt
 cd ..
+```
+Build data for low-resource language, including German (de), Italian (it) and Dutch (nl).
+```
+cd [lang] # de, it or nl
+ln -s ../oracle.py
+ln -s ../util.py
+ln -s ../../../[lang].[bronze|silver|dev|tst].json
+python2 oracle.py [lang].[bronze|silver|dev|tst].json > [lang].[bronze|silver|dev|tst].oracle.json
+
+ln -s ../getsrc.py
+ln -s ../gettgt.py
+python2 getsrc.py [lang].[bronze|silver|dev|tst].oracle.json > [lang].[bronze|silver|dev|tst].src
+python2 gettgt.py [lang].[bronze|silver|dev|tst].oracle.json > [lang].[bronze|silver|dev|tst].tgt
+cd ..
+```
+Build data from Enlgish for low-resource language, including German (de), Italian (it) and Dutch (nl).
+```
+cd [lang] # de, it or nl
+ln -s ../get_rest.py
+ln -s ../../../en.[gold|dev|tst].json
+python2 get_rest.py --create en.gold.json en.dev.json en.tst.json --exclude [lang].dev.json [lang].tst.json > [lang].gold.json
+
+python2 oracle.py [lang].gold.json > [lang].gold.oracle.json
+python2 getsrc.py [lang].gold.oracle.json > en.gold.src
+python2 gettgt.py [lang].gold.oracle.json > [lang].gold.tgt
+```
+`en.gold.src` has to be translated to `[lang]` language, and the traslated texts are saved in `[lang].gold.src` that will be pairing with `[lang].gold.tgt` for training. The translated training data for German (de), Italian (it) and Dutch (nl) are [available](https://drive.google.com/drive/folders/1IaNRpMEDEzhE0CZz9sGq-tPX0giexdOt?usp=sharing), using Google Translate.
+
+## Train
+
+Go to the `workspace` directory to prepare the data for DRS parsing, and construct director for each language.
+```
+cd workspace
+mkdir en de it nl
+```
+Train model for each langauge. Codes are based on the [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py), ad you can install the local onmt. Download the [embeddings]() or you can use your own, and put it onto the director `workspace`
+```
+cd [lang]
+
+mkdir data
+cd data
+
+ln -s ../../../preprocess/[lang]/[lang].bronze.[src|tgt]
+ln -s ../../../preprocess/[lang]/[lang].silver.[src|tgt]
+ln -s ../../../preprocess/[lang]/[lang].gold.[src|tgt]
+ln -s ../../../preprocess/[lang]/[lang].dev.[src|tgt]
+ln -s ../../../preprocess/[lang]/[lang].tst.[src|tgt]
+
+cat [lang].bronze.[src|tgt] [lang].silver.[src|tgt] [lang].gold.[src|tgt] > bsg.[src|tgt]
+cat [lang].silver.[src|tgt] [lang].gold.[src|tgt] > sg.[src|tgt]
+cat [lang].gold.[src|tgt] > g.[src|tgt]
+cat [lang].dev.[src|tgt] > dev.[src|tgt]
+cat [lang].tst.[src|tgt] > tst.[src|tgt]
+
+ln -s ../../get_vocab.py
+python get_vocab.py bsg.src > vocab.src
+cd ..
+```
+Only construct `*.bs.*` and `*.s.*` training data if having no `gold` training data
+
+Prepare data for onmt. 
+```
+ln -s ../preprocess.sh
 bash preprocess.sh
+ln -s ../get_embeddings.sh
+bash get_embeddings.sh [lang]
 ```
+It will automatically generate three directors `data-bsg-bin`, `data-sg-bin`, and `data-g-bin`
+```
+ln -s ../config-bsg
+ln -s ../config-sg
+ln -s ../config-g
 
-### Train
-```
-bash train.sh
-```
-The `checkpoints` are saved in the `models` directory. The model can be downloaded [here](https://drive.google.com/file/d/1i3XunGzOecsBpKnHFoTf3ZZUXcACOgsm/view?usp=sharing)
+ln -s ../train-bsg.sh
+ln -s ../train-sg.sh
+ln -s ../train-g.sh
 
-### Predict
+bash train-bsg.sh
 ```
-bash predict.sh [model_path] data/tst.src data/tst.tree data/tst.output [beam_size]
+The `checkpoints` are saved in `checkpoints-bsg/`, choose the best checkpoint and then
 ```
+bash train-sg.sh [best_ckpt]
+```
+The `checkpoints` are saved in `checkpoints-sg/`, choose the best checkpoint and then
+```
+bash train-g.sh [best_ckpt]
+```
+The `checkpoints` are saved in `checkpoints-g/`.
 
+## Predict
+```
+ln -s ../predict.sh
+bash predict.sh [input] [output] [ckpt]
+```
