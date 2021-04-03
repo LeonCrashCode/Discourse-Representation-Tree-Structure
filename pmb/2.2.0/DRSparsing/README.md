@@ -115,7 +115,7 @@ The `checkpoints` are saved in `checkpoints-sg/`, choose the best checkpoint and
 ```
 bash train-g.sh [best_ckpt]
 ```
-The `checkpoints` are saved in `checkpoints-g/`.
+The `checkpoints` are saved in `checkpoints-g/`. The trained models are available [here](https://drive.google.com/drive/folders/1TK550lhSjTI0amxrFWnhAk7fmsdZzLh_?usp=sharing).
 
 ## Predict
 ```
