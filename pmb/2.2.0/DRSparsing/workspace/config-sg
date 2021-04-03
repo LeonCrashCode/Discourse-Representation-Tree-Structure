@@ -1,0 +1,70 @@
+#!/bin/bash
+# Default settings that are imported for each experiment
+# Might be overwritten per individual experiment in different config files
+
+## First we list the settings that have to be present in each config file and never here!
+## That is the reason they are commented
+
+# MAIN_FOLDER=""
+# GOLD_FOLDER=""
+# gold_train=""
+# gold_dev=""
+# var_rewrite=""
+# representation=""
+# end_epoch=""
+# num_runs=1
+
+
+###### IMPORTANT TO SET THESE ######
+data="data-sg-bin/data"
+#pre_word_vecs_enc="data-sg-bin/embeddings-300.enc.pt"
+#pre_word_vecs_dec="../../data/data-bin/embeddings-300.dec.pt"
+save_model="checkpoints-sg/checkpoints"
+log_file="log-sg"
+random_seed="1234567"
+# File from which to train pre-trained embeddings. When recreating our experiments, you can download these embeddings here:
+# http://www.let.rug.nl/rikvannoord/DRS/embeddings/
+# Not necessary to set this parameter if you only do character-level training
+
+##### PARAMETER SETTINGS FOR EXPERIMENTS #####
+
+# These are the default settings that will be used if you do not specify them in your own config file
+# If you do specify them in your own config file, these values will be overridden
+
+# Parameter settings for training
+src_word_vec_size="300"
+tgt_word_vec_size="300"
+layers="6"
+rnn_size="300"
+transformer_ff="4096"
+heads="6"
+#rnn_type="LSTM" #options LSTM (default), GRU
+dropout="0.2"
+residual=""           	   #boolean, add residual connections between recurrent layers (default empty is false)
+bridge="-bridge"  
+encoder_type="transformer"        #accepted: rnn, brnn, dbrnn, pdbrnn, gnmt, cnn; default: rnn
+decoder_type="transformer"
+position_encoding="-position_encoding"
+max_relative_positions="1000"             #maximum value for positional indexes (default 50)
+global_attention="general" #accepted: general, dot, concat; default: general
+copy_attn="-copy_attn"
+copy_attn_type="dot"
+
+#Trainer/optimizer options
+report_every="100"             #default 50
+train_steps="20000"
+valid_steps="2000"
+save_checkpoint_steps="2000"
+batch_size="2048"
+batch_type="tokens"
+optim="adam" 				   #optimizer, accepted: sgd, adagrad, adadelta, adam
+learning_rate="0.0001"            #Initial learning rate. If adagrad or adam is used, then this is the global learning rate. Recommended settings are: sgd = 1, adagrad = 0.1, adam = 0.0002.
+learning_rate_decay="0.7"
+adam_beta2=0.998
+max_grad_norm="5"              #Default 5. Clip the gradients L2-norm to this value. Set to 0 to disable.
+start_decay_steps="8000"             #In "default" decay mode, start decay after this epoch.
+decay_steps="2000"
+param_init="0"
+param_init_glorot="-param_init_glorot"
+normalization="tokens"
+accum_count="4"
